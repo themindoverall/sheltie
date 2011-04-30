@@ -14,3 +14,7 @@ Get them walking through the level.
 - an item in the inventory.
 - the treasure chest.
 - the hero opening a treasure chest.
+- heroes holding items
+- simple event-condition-action trigger system
+- door opens when a hero stands on a button
+- implement damage system.
