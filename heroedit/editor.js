@@ -8,7 +8,8 @@ function PlayState() {
   var tiles;
   var tileset;
   var mouse = {lastPressed: false};
-	
+  var viewport;
+  
   this.setup = function() {
 	player = new jaws.Sprite({image: "plane.png", x: 10, y:100})
 	player.can_fire = true
@@ -16,17 +17,21 @@ function PlayState() {
 	jaws.preventDefaultKeys(["up", "down", "left", "right", "space"])
 	view.mousemove(function(event) {
 		os = view.offset();
-		mouse.x = event.pageX - os.left;
-		mouse.y = event.pageY - os.top;
+		mouse.x = event.pageX - os.left + viewport.x;
+		mouse.y = event.pageY - os.top + viewport.y;
 	});
 	view.mousedown(function(event) {
 		mouse.pressed = true;
+		return false;
 	});
 	view.mouseup(function(event) {
 		mouse.pressed = false;
 	});
+	view.get().onselectstart = function () { return false; }
 	
-	tileset = new jaws.SpriteSheet({image: "tiles.png", frame_size: [16, 16]});
+	viewport = new jaws.Viewport({});
+	
+	tileset = new jaws.SpriteSheet({image: "tiles.png", frame_size: [16, 16], orientation: 'down'});
 	tiles = new jaws.SpriteList();
 	tilemap = new jaws.TileMap({
 		cell_size: [16, 16],
@@ -35,7 +40,7 @@ function PlayState() {
 	
 	for (y = 0; y < 23; y++) {
 		for (x = 0; x < 40; x++) {
-			tiles.push(new jaws.Sprite({image: tileset.frames[8], x: x * 16, y: y * 16}));
+			tiles.push(new jaws.Sprite({image: tileset.frames[2], x: x * 16, y: y * 16}));
 		}
 	}
 	
@@ -58,8 +63,8 @@ function PlayState() {
 		move.x = move.x / mlength;
 		move.y = move.y / mlength;
 	}
-	player.x += move.x * spd * elapsed;
-	player.y += move.y * spd * elapsed;
+	viewport.x += move.x * spd * elapsed;
+	viewport.y += move.y * spd * elapsed;
 	
 	if(jaws.pressed("space")) { 
 	  if(player.can_fire) {
@@ -73,7 +78,7 @@ function PlayState() {
 		
 	if (mouse.pressed) {
 		sprite = (tilemap.at(mouse.x, mouse.y))[0];
-		sprite.setImage(tileset.frames[4]);
+		sprite.setImage(tileset.frames[1]);
 	}
 	forceInsideCanvas(player)
 	bullets.deleteIf(isOutsideCanvas) // delete items for which isOutsideCanvas(item) is true
@@ -83,9 +88,11 @@ function PlayState() {
   this.draw = function() {
     jaws.context.fillStyle = '#88AAFF';
 	jaws.context.fillRect(0,0,jaws.width,jaws.height)
-	tiles.draw()
-	player.draw()
-	bullets.draw()  // will call draw() on all items in the list
+	viewport.apply( function() {
+		tiles.draw()
+		player.draw()
+		bullets.draw()  // will call draw() on all items in the list
+	});
   }
 
   /* Simular to example1 but now we're using jaws properties to get width and height of canvas instead */

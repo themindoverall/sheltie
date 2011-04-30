@@ -12,6 +12,7 @@ Items:
 Road Signs - Tell the hero which direction to take at an intersection.  They will cut the sign down if they have a sword.
 Bombs - A hero with bombs has a command "Bomb".  The hero will drop a bomb where it stands.  The bomb will explode in 3 seconds.
 Sword - A hero with a sword will cut down anything it can that stands in its way.  It will cut tall grass that it could otherwise not go through.
+Lantern - A hero with a torch will burn down anything it can that stands in its way.
 Grapple-Hook - A hero with grapple hook can pull items towards himself, and can vault himself over gaps.
 Shield - A hero with a shield can block incoming attacks and projectiles in front of him.
 Bow - A hero with a bow has a command "Shoot".  The hero will shoot an arrow forward.

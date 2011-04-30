@@ -20,10 +20,18 @@ jaws.SpriteSheet = function(options) {
   this.frames = []
 
   var index = 0
-  for(var x=0; x < this.image.width; x += this.frame_size[0]) {
-    for(var y=0; y < this.image.height; y += this.frame_size[1]) {
-      this.frames.push( cutImage(this.image, x, y, this.frame_size[0], this.frame_size[1]) )
-    }
+  if (this.orientation == "right") {
+	  for(var x=0; x < this.image.width; x += this.frame_size[0]) {
+		for(var y=0; y < this.image.height; y += this.frame_size[1]) {
+		  this.frames.push( cutImage(this.image, x, y, this.frame_size[0], this.frame_size[1]) )
+		}
+	  }
+  } else {
+	for(var y=0; y < this.image.height; y += this.frame_size[1]) {
+		for(var x=0; x < this.image.width; x += this.frame_size[0]) {
+		  this.frames.push( cutImage(this.image, x, y, this.frame_size[0], this.frame_size[1]) )
+		}
+	  }
   }
 }
 
