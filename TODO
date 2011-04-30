@@ -1,0 +1,16 @@
+Hero Factory
+
+TODO
+Load tilemaps into the game
+Put a simple spawn object mechanic in to get things happening.
+Write a FSM for the Heroes.
+Get them walking through the level.
+- their whole walking preference mechanic.
+- goal tile that +1's the number of Heroes and deletes them.
+- heart counter GUI element.
+- timer bar GUI element.
+- ordering a hero to stop and go.
+- inventory GUI.
+- an item in the inventory.
+- the treasure chest.
+- the hero opening a treasure chest.

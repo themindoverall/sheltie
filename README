@@ -18,9 +18,8 @@ Bow - A hero with a bow has a command "Shoot".  The hero will shoot an arrow for
 Keys - YESHSHSHSHSHSHS
 Red Potion - This hero can temporarily survive extremely hot temperatures
 Blue Potion - This hero can temporarily walk over water
-Yellow Potion - 
+Yellow Potion - This hero can temporarily push heavy objects
 Magic Wand & Magic Staff - Like a portal gun but two different heroes are needed to hold the items and create the openings.  They open "Warps".  In some levels, there will be built in Warps and you only get a Wand or Staff.
-
 
 Heroes will march on a set path given in the level.
 They can deviate if the player sets them on a different way.
