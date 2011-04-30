@@ -1,0 +1,44 @@
+Hero Factory
+
+It's dangerous to go alone.  BUY SOMETHING.
+
+Square tiles
+Heros that march
+Items
+
+Each of our heroes will have three hearts over their head.
+
+Items:
+Road Signs - Tell the hero which direction to take at an intersection.  They will cut the sign down if they have a sword.
+Bombs - A hero with bombs has a command "Bomb".  The hero will drop a bomb where it stands.  The bomb will explode in 3 seconds.
+Sword - A hero with a sword will cut down anything it can that stands in its way.  It will cut tall grass that it could otherwise not go through.
+Grapple-Hook - A hero with grapple hook can pull items towards himself, and can vault himself over gaps.
+Shield - A hero with a shield can block incoming attacks and projectiles in front of him.
+Bow - A hero with a bow has a command "Shoot".  The hero will shoot an arrow forward.
+Keys - YESHSHSHSHSHSHS
+Red Potion - This hero can temporarily survive extremely hot temperatures
+Blue Potion - This hero can temporarily walk over water
+Yellow Potion - 
+Magic Wand & Magic Staff - Like a portal gun but two different heroes are needed to hold the items and create the openings.  They open "Warps".  In some levels, there will be built in Warps and you only get a Wand or Staff.
+
+
+Heroes will march on a set path given in the level.
+They can deviate if the player sets them on a different way.
+Once a hero gets an item he will use it at the first moment he can
+You can tell your heroes to stop.
+The heroes are grouped to begin with, and they stop and go as a group.
+When they receive an item, they are considered part of their own group and they'll venture off on their own.
+Whenever a hero can use its item, it does.
+Items that you would like the hero to pick up must be placed in a treasure chest.
+Heroes prefer to walk forward, clockwise, counter-clockwise, and failing those they'll turn around.
+
+The gameplay challenges:
+ - Give the right items to the right heroes to allow your heroes to progress through the level.
+ - Time it right so they use their item at the right time
+
+
+32 hours
+8 code
+8 graphics
+8 sound
+8 levels

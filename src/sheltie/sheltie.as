@@ -7,7 +7,7 @@ package sheltie
 	{
 		public function sheltie()
 		{
-			super(320, 180, PlayState, 2, 60, 30);
+			super(640, 360, PlayState, 1, 60, 30);
 		}
 	}
 }
