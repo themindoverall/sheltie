@@ -31,6 +31,8 @@ When they receive an item, they are considered part of their own group and they'
 Whenever a hero can use its item, it does.
 Items that you would like the hero to pick up must be placed in a treasure chest.
 Heroes prefer to walk forward, clockwise, counter-clockwise, and failing those they'll turn around.
+The whole game runs on a certain cadence that is very natural.  There is a rhythm to solving the puzzles.
+
 
 The gameplay challenges:
  - Give the right items to the right heroes to allow your heroes to progress through the level.

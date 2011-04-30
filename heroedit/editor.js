@@ -1,8 +1,5 @@
 var fps = null
-var sprite
 function PlayState() {
-  var player
-  var bullets = new jaws.SpriteList()
   var view = $('#view');
   var tilemap;
   var tiles;
@@ -11,8 +8,6 @@ function PlayState() {
   var viewport;
   
   this.setup = function() {
-	player = new jaws.Sprite({image: "plane.png", x: 10, y:100})
-	player.can_fire = true
 	jaws.on_keydown("esc",  function() { jaws.switchGameState(MenuState) })
 	jaws.preventDefaultKeys(["up", "down", "left", "right", "space"])
 	view.mousemove(function(event) {
@@ -35,11 +30,11 @@ function PlayState() {
 	tiles = new jaws.SpriteList();
 	tilemap = new jaws.TileMap({
 		cell_size: [16, 16],
-		size: [40, 23]
+		size: [32, 32]
 	});
 	
-	for (y = 0; y < 23; y++) {
-		for (x = 0; x < 40; x++) {
+	for (y = 0; y < tilemap.size[1]; y++) {
+		for (x = 0; x < tilemap.size[0]; x++) {
 			tiles.push(new jaws.Sprite({image: tileset.frames[2], x: x * 16, y: y * 16}));
 		}
 	}
@@ -66,23 +61,13 @@ function PlayState() {
 	viewport.x += move.x * spd * elapsed;
 	viewport.y += move.y * spd * elapsed;
 	
-	if(jaws.pressed("space")) { 
-	  if(player.can_fire) {
-		bullets.push( new Bullet(player.rect().right, player.y) )
-		player.can_fire = false
-		setTimeout(function() { player.can_fire = true }, 100)
-	  }
-	}
-
-	fps.innerHTML = mouse.x + ', ' + mouse.y;
-		
 	if (mouse.pressed) {
 		sprite = (tilemap.at(mouse.x, mouse.y))[0];
 		sprite.setImage(tileset.frames[1]);
 	}
-	forceInsideCanvas(player)
-	bullets.deleteIf(isOutsideCanvas) // delete items for which isOutsideCanvas(item) is true
+	//fps.innerHTML = mouse.x + ', ' + mouse.y;
 	//fps.innerHTML = elapsed;
+	fps.innerHTML = jaws.gameloop.fps;
   }
 
   this.draw = function() {
@@ -90,21 +75,7 @@ function PlayState() {
 	jaws.context.fillRect(0,0,jaws.width,jaws.height)
 	viewport.apply( function() {
 		tiles.draw()
-		player.draw()
-		bullets.draw()  // will call draw() on all items in the list
 	});
-  }
-
-  /* Simular to example1 but now we're using jaws properties to get width and height of canvas instead */
-  /* This mainly since we let jaws handle the canvas now */
-  function isOutsideCanvas(item) { 
-	return (item.x < 0 || item.y < 0 || item.x > jaws.width || item.y > jaws.height) 
-  }
-  function forceInsideCanvas(item) {
-	if(item.x < 0)                  { item.x = 0  }
-	if(item.right > jaws.width)     { item.x = jaws.width - item.width }
-	if(item.y < 0)                  { item.y = 0 }
-	if(item.bottom  > jaws.height)  { item.y = jaws.height - item.height }
   }
 
   function Bullet(x, y) {
