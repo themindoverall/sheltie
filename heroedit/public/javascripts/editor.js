@@ -11,7 +11,6 @@ function PlayState() {
   var objects;
   var my = this;
   var curtool = "tile";
-  var selectedsprite;
 
   this.setup = function() {
 	my.libraries = []
@@ -53,9 +52,18 @@ function PlayState() {
 	}
 	
 	my.tilemap.push(tiles);
+	
+	if (leveldata !== undefined) {
+		my.loadLevel(leveldata);
+	}
   }
 
   this.update = function() {
+	if (mouse.pressed && !mouse.lastPressed) {
+		mouse.justPressed = true;
+	} else {
+		mouse.justPressed = false;
+	}
 	elapsed = jaws.gameloop.tick_duration / 1000.0;
     
 	spd = 100;
@@ -81,7 +89,7 @@ function PlayState() {
 			sprite.frameid = curframe;
 		}
 	} else if (curtool == 'obj') {
-		if (mouse.pressed) {
+		if (mouse.justPressed) {
 			ss = new jaws.SpriteSheet({image: "images/" + curobject.image.src, frame_size: [curobject.image.width, curobject.image.height], orientation: 'down'})
 			console.log(ss.image)
 			sprite = new jaws.Sprite({
@@ -95,7 +103,7 @@ function PlayState() {
 			sprite.pos = [parseInt(mouse.x / 16), parseInt(mouse.y / 16)];
 		}
 	} else if (curtool == 'del') {
-		if (mouse.pressed) {
+		if (mouse.justPressed) {
 			bad = undefined;
 			$.each(objects, function(i, obj) {
 				if (parseInt(mouse.x / 16) == obj.pos[0] && parseInt(mouse.y / 16) == obj.pos[1]) {
@@ -106,17 +114,19 @@ function PlayState() {
 			objects.remove(bad);
 		}
 	} else if (curtool == 'sel') {
-		if (mouse.pressed) {
-			selectedsprite = undefined;
+		if (mouse.justPressed) {
+			my.selectedsprite = undefined;
 			$.each(objects, function(i, obj) {
 				if (parseInt(mouse.x / 16) == obj.pos[0] && parseInt(mouse.y / 16) == obj.pos[1]) {
-					selectedsprite = obj;
+					my.selectedsprite = obj;
 					return false;
 				}
 			});
-			view.trigger('obj-sel', selectedsprite);
+			view.trigger('obj-sel', my.selectedsprite);
 		}
 	}
+	
+	mouse.lastPressed = mouse.pressed;
 	//fps.innerHTML = mouse.x + ', ' + mouse.y;
 	//fps.innerHTML = elapsed;
 	fps.innerHTML = jaws.gameloop.fps;
@@ -128,9 +138,9 @@ function PlayState() {
 	viewport.apply( function() {
 		tiles.draw()
 		objects.draw()
-		if (selectedsprite != null) {
+		if (my.selectedsprite != null) {
 			jaws.context.strokeStyle = '#00FF00'
-			jaws.context.strokeRect(selectedsprite.x, selectedsprite.y, selectedsprite.width, selectedsprite.height)
+			jaws.context.strokeRect(my.selectedsprite.x, my.selectedsprite.y, my.selectedsprite.width, my.selectedsprite.height)
 		}
 	});
   }
@@ -168,6 +178,65 @@ function PlayState() {
 	this.setTool = function(tool) {
 		curtool = tool;
 	}
+	
+	this.getObjects = function() {
+		return objects;
+	}
+	
+	this.loadLevel = function(level) {
+		w = parseInt(level.width)
+		h = parseInt(level.height)
+		
+		rows = level.map.split('\n');
+		$.each(rows, function (y, row) {
+			$.each(row.split(', '), function(x, frame) {
+				if (!frame.match(/^\d+$/)) {
+					return true; //continue
+				}
+				sprite = (my.tilemap.cell(x, y))[0];
+				sprite.setImage(tileset.frames[frame]);
+				sprite.frameid = frame;
+			});
+		});
+		
+		libstoload = {}
+		$.each(level.objects, function(i, objdef) {
+			libstoload[objdef.lib] = 1;
+		});
+		mytoload = 0;
+		$.each(libstoload, function(i, j) {
+			mytoload++;
+		})
+		
+		function loadsprites() {
+			$.each(level.objects, function(i, objdef) {
+				libobj = my.libraries[objdef.lib][objdef.obj];
+				
+				ss = new jaws.SpriteSheet({image: "images/" + libobj.image.src, frame_size: [libobj.image.width, libobj.image.height], orientation: 'down'})
+				sprite = new jaws.Sprite({
+					image: ss.frames[parseInt(libobj.image.frame)],
+					x: parseInt(objdef.pos[0]) * 16,
+					y: parseInt(objdef.pos[1]) * 16
+				})
+				objects.push(sprite)
+				sprite.props = objdef.props;
+				sprite.obj = libobj;
+				sprite.pos = objdef.pos;
+			});
+		}
+		
+		$.each(libstoload, function(lib, v) {
+			loadLibrary(lib, { 'lib': function(lib) {
+				lib.onload = function() {
+					mytoload--;
+					console.log('toload = ' + mytoload)
+					if (mytoload == 0) {
+						loadsprites();
+					}
+				}}
+			});
+		});
+	}
 }
 
 function MenuState() {
@@ -194,6 +263,50 @@ function MenuState() {
   }
 }
 
+function loadLibrary(libname, afters) {
+	if (jaws.game_state.libraries[libname] !== undefined) {
+		lib = jaws.game_state.libraries[libname];
+		afters['lib'] && afters['lib'](lib);
+		lib.onload && lib.onload();
+		return;
+	}
+	
+	$.ajax('load_objects/' + libname + '?' + Math.floor(Math.random()*100000), 
+	{
+		success: function(data, textStatus, jqXHR) {
+			$("#objects").html("")
+			lib = {}
+			assetstoload = []
+			toload = 0;
+			$.each(data, function(i, obj) {
+				img = obj.image;
+				obj.lib = libname;
+				
+				assetstoload.push("images/" + img.src);
+				toload++;
+				
+				lib[obj.name] = obj
+				afters['obj'] && afters['obj'](obj);
+			})
+						
+			jaws.game_state.libraries[libname] = lib;
+			afters['lib'] && afters['lib'](lib);
+			
+			$.each(assetstoload, function(i, src) {
+				jaws.assets.getOrLoad(src, function(){
+					toload--;
+					if (toload == 0) {
+						lib.onload && lib.onload()
+					}
+				});
+			});
+		},
+		error: function(qXHR, textStatus, errorThrown) {
+			alert(textStatus);
+		}
+	});
+}
+
 $(document).ready(function() {
 	$("div[id$='-select']").hide();
 	$("#tile-select").show();
@@ -208,12 +321,27 @@ $(document).ready(function() {
 		}
 		filename = $('#filename').val();
 		
+		objs = {}
+		objsprites = jaws.game_state.getObjects();
+		$.each(objsprites, function (i, sprite) {
+			objs[sprite.props['name']] = {
+				lib: sprite.obj.lib,
+				obj: sprite.obj.name,
+				props: sprite.props,
+				pos: sprite.pos
+			}
+		});
+		
 		$.post('save/' + filename, {
 			filename: filename,
-			width: tm.size[0],
-			height: tm.size[1],
-			tileset: (tm.cell(0,0))[0].image.src,
-			map: mapstr
+			level: {
+				name: filename,
+				width: tm.size[0],
+				height: tm.size[1],
+				tileset: (tm.cell(0,0))[0].image.src,
+				map: mapstr,
+				objects: objs
+			}
 		}, function(data) {
 			jaws.log('Response: ' + data);
 		});
@@ -225,23 +353,9 @@ $(document).ready(function() {
 		if (libname === undefined) {
 			return;
 		}
-		$.ajax('load_objects/' + libname + '?' + Math.floor(Math.random()*100000), 
-		{
-			success: function(data, textStatus, jqXHR) {
-				$("#objects").html("")
-				lib = {}
-				$.each(data, function(i, obj) {
-					img = obj.image;
-					jaws.assets.load("images/" + img.src);
-					lib[obj.name] = obj
-					$("#objects").append("<option>" + obj.name + "</option>")
-				})
-				jaws.game_state.libraries[libname] = lib;
-			},
-			error: function(qXHR, textStatus, errorThrown) {
-				alert(textStatus);
-			}
-		});
+		loadLibrary(libname, {'obj': function(obj) {
+			$("#objects").append("<option>" + obj.name + "</option>");
+		}});
 	});
 	
 	$("#objects").change(function() {
@@ -262,13 +376,48 @@ $(document).ready(function() {
 	});
 	
 	$("#view").bind('obj-sel', function (e, obj) {
-		//$("obj-props").html("");
+		refreshProps(obj);
+	});
+	
+	$("#obj-props").change(function() {
+		obj = $(this).data('obj');
+		propkey = $(this).val();
+		$("#prop-key").val(propkey);
+		$("#prop-val").val(obj.props[propkey]);
+	});
+	
+	$("#prop-set").click(function() {
+		obj = $("#obj-props").data('obj');
+		propkey = $("#prop-key").val();
+		propval = $("#prop-val").val();
+		
+		if (propkey == '') {
+			return;
+		}
+		if (propval == '') {
+			delete obj.props[propkey]
+		} else {
+			obj.props[propkey] = propval;
+		}
+		
+		refreshProps(obj);
+	});
+	
+	function refreshProps(obj) {
+		$("#prop-key").val('');
+		$("#prop-val").val('');
+		
+		if (obj === undefined) {
+			$("#obj-props").html("");
+			return;
+		}
+		$("#obj-props").data('obj', obj);
 		propopts = '';
 		$.each(obj.props, function(key, val) {
 			propopts += '<option value="' + key + '">' + key + '=' + val + '</option>'
 		});
 		$("#obj-props").html(propopts)
-	});
+	}
 });
 
 $(window).load(function() {

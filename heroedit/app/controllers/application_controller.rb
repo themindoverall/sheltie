@@ -8,19 +8,22 @@ class ApplicationController < ActionController::Base
       end
     end).compact()
     
+    @level = nil
+    fn = params[:filename]
+    if fn
+      file = File.new('assets/levels/' + fn + '.sheltie')
+      @level = file.read
+      @levelname = fn
+      file.close
+    end
+    
   end
   
   def save()
-    level = {
-      'name' => params[:filename],
-      'width' => params[:width],
-      'height' => params[:height],
-      'map' => params[:map].gsub(/\\n/, "\n")
-    }
-    
+    level = params[:level]
     filename = params[:filename] + '.sheltie'
     
-    File.open(filename, 'w') { |f|
+    File.open('assets/levels/' + filename, 'w') { |f|
       f.write(level.to_json())
     }
     
