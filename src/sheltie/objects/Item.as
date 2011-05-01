@@ -1,4 +1,4 @@
-package sheltie
+package sheltie.objects
 {
 	import org.flixel.FlxSprite;
 	

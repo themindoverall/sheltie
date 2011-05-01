@@ -1,5 +1,7 @@
 package sheltie
 {
+	import org.flixel.FlxGroup;
+	import org.flixel.FlxSprite;
 	import org.flixel.FlxState;
 	
 	public class PlayState extends FlxState
@@ -15,12 +17,8 @@ package sheltie
 		
 		public override function create():void
 		{
-			player = new Player();
-			
-			currentLevel = new Level();
-			
-			heroes = [];
-			
+			GameManager.instance().playLevel("bender.sheltie");
+			this.add(GameManager.instance().levelObjects);
 		}
 	}
 }

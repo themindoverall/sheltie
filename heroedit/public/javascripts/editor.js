@@ -183,6 +183,10 @@ function PlayState() {
 		return objects;
 	}
 	
+	this.tilesetname = function() {
+		return tileset.image.src;
+	}
+	
 	this.loadLevel = function(level) {
 		w = parseInt(level.width)
 		h = parseInt(level.height)
@@ -314,10 +318,15 @@ $(document).ready(function() {
 		tm = jaws.game_state.tilemap;
 		mapstr = '';
 		for (y = 0; y < tm.size[1]; y++) {
-			for (x = 0; x < tm.size[0]; x++) {
-				mapstr += (tm.cell(x, y))[0].frameid + ', ';
+			if (y > 0) {
+				mapstr += '\n';
 			}
-			mapstr += '\n'
+			for (x = 0; x < tm.size[0]; x++) {
+				if (x > 0) {
+					mapstr += ', ';
+				}
+				mapstr += (tm.cell(x, y))[0].frameid;
+			}
 		}
 		filename = $('#filename').val();
 		
@@ -332,20 +341,21 @@ $(document).ready(function() {
 			}
 		});
 		
+	//	console.log(jaws.game_state.tilesetname());
+		
 		$.post('save/' + filename, {
 			filename: filename,
 			level: {
 				name: filename,
 				width: tm.size[0],
 				height: tm.size[1],
-				tileset: (tm.cell(0,0))[0].image.src,
+				tileset: "tiles.png",
 				map: mapstr,
 				objects: objs
 			}
 		}, function(data) {
 			jaws.log('Response: ' + data);
 		});
-		console.log(mapstr);
 	});
 	
 	$("#libraries").change(function() {

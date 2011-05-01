@@ -2,7 +2,7 @@ class ApplicationController < ActionController::Base
   protect_from_forgery
   
   def editor(filename="")
-    @libraries = (Dir.foreach('assets/objects').collect do |file|
+    @libraries = (Dir.foreach('../src/sheltie/resources/objects').collect do |file|
       if file[0] != '.'
         File.basename(file, '.json')
       end
@@ -11,7 +11,7 @@ class ApplicationController < ActionController::Base
     @level = nil
     fn = params[:filename]
     if fn
-      file = File.new('assets/levels/' + fn + '.sheltie')
+      file = File.new('../src/sheltie/resources/levels/' + fn + '.sheltie')
       @level = file.read
       @levelname = fn
       file.close
@@ -23,7 +23,7 @@ class ApplicationController < ActionController::Base
     level = params[:level]
     filename = params[:filename] + '.sheltie'
     
-    File.open('assets/levels/' + filename, 'w') { |f|
+    File.open('../src/sheltie/resources/levels/' + filename, 'w') { |f|
       f.write(level.to_json())
     }
     
