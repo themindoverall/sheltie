@@ -7,10 +7,14 @@ function PlayState() {
   var viewport;
   var tileselect;
   var curframe = 1;
-
+  var curobject = null;
+  var objects;
   var my = this;
+  var curtool = "tile";
+  var selectedsprite;
 
   this.setup = function() {
+	my.libraries = []
 	jaws.on_keydown("esc",  function() { jaws.switchGameState(MenuState) })
 	jaws.preventDefaultKeys(["up", "down", "left", "right", "space"])
 	view.mousemove(function(event) {
@@ -31,6 +35,7 @@ function PlayState() {
 	
 	tileset = new jaws.SpriteSheet({image: "images/tiles.png", frame_size: [16, 16], orientation: 'down'});
 	tiles = new jaws.SpriteList();
+	objects = new jaws.SpriteList();
 	
 	tileselect = new TileSelect(tileset);
 	
@@ -69,10 +74,48 @@ function PlayState() {
 	viewport.x += move.x * spd * elapsed;
 	viewport.y += move.y * spd * elapsed;
 	
-	if (mouse.pressed) {
-		sprite = (my.tilemap.at(mouse.x, mouse.y))[0];
-		sprite.setImage(tileset.frames[curframe]);
-		sprite.frameid = curframe;
+	if (curtool == 'tile') {
+		if (mouse.pressed) {
+			sprite = (my.tilemap.at(mouse.x, mouse.y))[0];
+			sprite.setImage(tileset.frames[curframe]);
+			sprite.frameid = curframe;
+		}
+	} else if (curtool == 'obj') {
+		if (mouse.pressed) {
+			ss = new jaws.SpriteSheet({image: "images/" + curobject.image.src, frame_size: [curobject.image.width, curobject.image.height], orientation: 'down'})
+			console.log(ss.image)
+			sprite = new jaws.Sprite({
+				image: ss.frames[parseInt(curobject.image.frame)],
+				x: parseInt(mouse.x / 16) * 16,
+				y: parseInt(mouse.y / 16) * 16
+			})
+			objects.push(sprite)
+			sprite.props = {name: "obj" + objects.length};
+			sprite.obj = curobject;
+			sprite.pos = [parseInt(mouse.x / 16), parseInt(mouse.y / 16)];
+		}
+	} else if (curtool == 'del') {
+		if (mouse.pressed) {
+			bad = undefined;
+			$.each(objects, function(i, obj) {
+				if (parseInt(mouse.x / 16) == obj.pos[0] && parseInt(mouse.y / 16) == obj.pos[1]) {
+					bad = obj;
+					return false;
+				}
+			});
+			objects.remove(bad);
+		}
+	} else if (curtool == 'sel') {
+		if (mouse.pressed) {
+			selectedsprite = undefined;
+			$.each(objects, function(i, obj) {
+				if (parseInt(mouse.x / 16) == obj.pos[0] && parseInt(mouse.y / 16) == obj.pos[1]) {
+					selectedsprite = obj;
+					return false;
+				}
+			});
+			view.trigger('obj-sel', selectedsprite);
+		}
 	}
 	//fps.innerHTML = mouse.x + ', ' + mouse.y;
 	//fps.innerHTML = elapsed;
@@ -84,6 +127,11 @@ function PlayState() {
 	jaws.context.fillRect(0,0,jaws.width,jaws.height)
 	viewport.apply( function() {
 		tiles.draw()
+		objects.draw()
+		if (selectedsprite != null) {
+			jaws.context.strokeStyle = '#00FF00'
+			jaws.context.strokeRect(selectedsprite.x, selectedsprite.y, selectedsprite.width, selectedsprite.height)
+		}
 	});
   }
 
@@ -112,6 +160,14 @@ function PlayState() {
 			console.log(curframe)
 		});
 	}
+	
+	this.setObject = function(lib, obj) {
+		curobject = my.libraries[lib][obj];
+	};
+	
+	this.setTool = function(tool) {
+		curtool = tool;
+	}
 }
 
 function MenuState() {
@@ -139,6 +195,8 @@ function MenuState() {
 }
 
 $(document).ready(function() {
+	$("div[id$='-select']").hide();
+	$("#tile-select").show();
 	$('#save-btn').click(function() {
 		tm = jaws.game_state.tilemap;
 		mapstr = '';
@@ -161,11 +219,61 @@ $(document).ready(function() {
 		});
 		console.log(mapstr);
 	});
+	
+	$("#libraries").change(function() {
+		libname = $(this).val()
+		if (libname === undefined) {
+			return;
+		}
+		$.ajax('load_objects/' + libname + '?' + Math.floor(Math.random()*100000), 
+		{
+			success: function(data, textStatus, jqXHR) {
+				$("#objects").html("")
+				lib = {}
+				$.each(data, function(i, obj) {
+					img = obj.image;
+					jaws.assets.load("images/" + img.src);
+					lib[obj.name] = obj
+					$("#objects").append("<option>" + obj.name + "</option>")
+				})
+				jaws.game_state.libraries[libname] = lib;
+			},
+			error: function(qXHR, textStatus, errorThrown) {
+				alert(textStatus);
+			}
+		});
+	});
+	
+	$("#objects").change(function() {
+		libname = $("#libraries").val()
+		objname = $(this).val()
+		if (libname === undefined || objname === undefined) {
+			return;
+		}
+		
+		jaws.game_state.setObject(libname, objname)
+	});
+	
+	$("input[name='tool-select']").click(function() {
+		newtool = $("input[name='tool-select']:checked").val();
+		jaws.game_state.setTool(newtool);
+		$("div[id$='-select']").hide();
+		$("#" + newtool + "-select").show();
+	});
+	
+	$("#view").bind('obj-sel', function (e, obj) {
+		//$("obj-props").html("");
+		propopts = '';
+		$.each(obj.props, function(key, val) {
+			propopts += '<option value="' + key + '">' + key + '=' + val + '</option>'
+		});
+		$("#obj-props").html(propopts)
+	});
 });
 
 $(window).load(function() {
 	fps = document.getElementById("fps")
 	jaws.assets.root = "images/";
 	jaws.assets.add(["tiles.png"])
-    jaws.start(MenuState, {fps: 8})
+    jaws.start(PlayState, {fps: 20})
 });

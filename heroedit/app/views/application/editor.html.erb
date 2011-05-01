@@ -1,0 +1,41 @@
+<html>
+<head>
+<title>Hero Factory - Editor</title>
+<script type="text/javascript" src="javascripts/jquery.min.js"></script>
+<script type="text/javascript" src="javascripts/jaws/jaws-dynamic.js"></script>
+<script type="text/javascript" src="javascripts/editor.js"></script>
+</head>
+<body>
+<canvas style="position:relative; cursor: default;" id="view" width="640" height="360"></canvas>
+<div style="float:right;">
+	<form>
+		Map name: <input id="filename" type="text" /><br />
+		<input id="save-btn" type="button" value="Save" />
+	</form>
+	<input type="radio" name="tool-select" value="sel" />sel<br />
+	<input type="radio" name="tool-select" value="tile" checked="checked" />tile<br />
+	<input type="radio" name="tool-select" value="obj" />obj<br />
+	<input type="radio" name="tool-select" value="del" />del<br />
+	<div id="tile-select"></div>
+	<div id="obj-select">
+		<select id="libraries" size="6">
+			<% @libraries.each do |lib| %>
+				<option><%=lib %></option>
+			<% end %>
+		</select>
+		<select id="objects" size="6">
+		</select>
+	</div>
+	<div id="sel-select">
+		<select id="obj-props" size="6">
+		</select><br />
+		<input style="width:45px" type="text" id="prop-key" />
+		<input style="width:75px" type="text" id="prop-val" />
+		<input type="button" id="prop-set" value="set" />
+	</div>
+</div>
+FPS: <span id="fps"></span><br />
+<h3>jaws log</h3>
+<div id="jaws-log"></div>
+</body>
+</html>
