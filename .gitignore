@@ -4,3 +4,7 @@
 .project
 .settings/*
 bin-debug/*
+db/*.sqlite3
+log/*.log
+tmp/**/*
+
