@@ -11,6 +11,9 @@ package sheltie {
 		[Embed(source = 'resources/images/markers.png')]
 			public const markers_png:Class;
 
+		[Embed(source = 'resources/images/signs.png')]
+			public const signs_png:Class;
+
 		[Embed(source = 'resources/images/tiles.png')]
 			public const tiles_png:Class;
 

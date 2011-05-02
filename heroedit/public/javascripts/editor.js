@@ -270,6 +270,9 @@ function MenuState() {
 function loadLibrary(libname, afters) {
 	if (jaws.game_state.libraries[libname] !== undefined) {
 		lib = jaws.game_state.libraries[libname];
+		$.each(lib, function(k, v) {
+			afters['obj'] && afters['obj'](v);
+		});
 		afters['lib'] && afters['lib'](lib);
 		lib.onload && lib.onload();
 		return;

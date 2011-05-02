@@ -1,12 +1,13 @@
 package sheltie.objects
 {
+	import org.flixel.FlxBasic;
 	import org.flixel.FlxPoint;
 	import org.flixel.FlxSprite;
 	
 	import sheltie.GameManager;
 	import sheltie.ResourceLoader;
 
-	public class GameObject
+	public class GameObject extends FlxBasic
 	{
 		public function GameObject()
 		{

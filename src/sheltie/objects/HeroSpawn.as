@@ -3,6 +3,7 @@ package sheltie.objects
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
 	
+	import org.flixel.FlxG;
 	import org.flixel.FlxSprite;
 	
 	import sheltie.GameManager;
@@ -11,20 +12,33 @@ package sheltie.objects
 	public class HeroSpawn extends GameObject
 	{
 		private var sprite:FlxSprite;
+		private var c:int;
+		private var timer:Number, cooldown:Number;
 		
 		public function HeroSpawn(objdata:Object)
 		{
 			sprite = createSprite(objdata);
-			//super(objdata, objCallback);
+			c = 1//objdata.props["count"];
 			
-			var timer:Timer = new Timer(parseFloat(objdata.props.rate) * 20);
-			timer.addEventListener(TimerEvent.TIMER, onTimer);
-			timer.start();
+			GameManager.instance().register(this);
+			
+			cooldown = parseFloat(objdata.props.rate) * 20 * 0.001;
+			timer = cooldown;
 		}
 		
-		public function onTimer(eve:TimerEvent):void {
-			var hero:Hero = new Hero(sprite.x, sprite.y, ResourceLoader.get("chars1"));
-			GameManager.instance().register(hero);
+		public override function update():void {
+			if (c <= 0) {
+				return;
+			}
+			timer -= FlxG.elapsed;
+			
+			if (timer <= 0) {
+				var hero:Hero = new Hero(sprite.x, sprite.y, ResourceLoader.get("chars1.png"));
+				GameManager.instance().registerHero(hero);
+				c--;
+				
+				timer = cooldown;
+			}
 		}
 	}
 }
