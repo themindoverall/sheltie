@@ -38,10 +38,8 @@
 FPS: <span id="fps"></span><br />
 <h3>jaws log</h3>
 <div id="jaws-log"></div>
-<% if @level %>
 <script type="text/javascript">
-var leveldata = <%=raw @level %>;
+var leveldata = <% if @level %><%=raw @level %><% else %>null<% end %>;
 </script>
-<% end %>
 </body>
 </html>

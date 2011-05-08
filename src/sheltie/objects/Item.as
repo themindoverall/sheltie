@@ -7,6 +7,7 @@ package sheltie.objects
 		public function Item(X:Number=0, Y:Number=0, SimpleGraphic:Class=null)
 		{
 			super(X, Y, SimpleGraphic);
+			this.scrollFactor.make(0,0);
 		}
 	}
 }

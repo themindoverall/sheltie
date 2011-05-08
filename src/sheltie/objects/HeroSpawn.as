@@ -18,11 +18,11 @@ package sheltie.objects
 		public function HeroSpawn(objdata:Object)
 		{
 			sprite = createSprite(objdata);
-			c = 1//objdata.props["count"];
+			c = objdata.props["count"];
 			
 			GameManager.instance().register(this);
 			
-			cooldown = parseFloat(objdata.props.rate) * 20 * 0.001;
+			cooldown = 1 / parseFloat(objdata.props.rate);
 			timer = cooldown;
 		}
 		

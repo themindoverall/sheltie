@@ -23,6 +23,9 @@ package sheltie {
 		[Embed(source = 'resources/levels/bender.sheltie', mimeType="application/octet-stream")]
 			public const bender_sheltie:Class;
 
+		[Embed(source = 'resources/levels/tiny.sheltie', mimeType="application/octet-stream")]
+			public const tiny_sheltie:Class;
+
 		[Embed(source = 'resources/objects/common.json', mimeType="application/octet-stream")]
 			public const common_json:Class;
 	}

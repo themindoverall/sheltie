@@ -18,6 +18,7 @@ package sheltie
 		public static function instance():GameManager {
 			if (_instance == null) {
 				_instance = new GameManager();
+				_instance.initialize();
 			}
 			return _instance;
 		}
@@ -30,21 +31,25 @@ package sheltie
 		public var currentLevel:Level;
 		public var map:FlxTilemap;
 		public var tileObjects:Object = {};
+		public var uiObjects:FlxGroup;
 		
 		public function GameManager()
 		{
-			levelObjects = new FlxGroup(3);
+		}
+		
+		public function initialize():void
+		{
+			levelObjects = new FlxGroup(4);
 			mapObjects = new FlxGroup();
 			spriteObjects = new FlxGroup();
+			uiObjects = new FlxGroup();
 			
 			player = new Player();
-			
-			FlxG.camera.scroll.x += 200;
-			FlxG.camera.scroll.y += 150;
 			
 			levelObjects.add(mapObjects);
 			levelObjects.add(spriteObjects);
 			levelObjects.add(player);
+			levelObjects.add(uiObjects);
 		}
 		
 		public function register(obj:FlxBasic, category:String = "None"):void
@@ -70,6 +75,11 @@ package sheltie
 			heroes.push(obj);
 		}
 		
+		public function registerUI(obj:FlxBasic):void
+		{
+			uiObjects.add(obj);
+		}
+		
 		public function registerTileObject(obj:FlxBasic, coords:FlxPoint):void
 		{
 			if (!tileObjects[coords.y * map.widthInTiles + coords.x]) {
@@ -90,10 +100,19 @@ package sheltie
 		public function getTileInfo(coord:FlxPoint, dir:Array = null):Object
 		{
 			var info:Object = {};
+			
+			if (coord.x < 0 || coord.x >= map.widthInTiles || coord.y < 0 || coord.y >= map.heightInTiles) {
+				info['tile'] = 10;
+				info['difficulty'] = 10;
+				
+				return info;
+			}
+			
 			info['tile'] = map.getTile(coord.x, coord.y);
 			info['tileObjects'] = tileObjects[coord.y * map.widthInTiles + coord.x];
 			
 			var diff:int = tileDifficulty(info['tile']);
+			info['tile'] = diff;
 			
 			if (info['tileObjects']) {
 				for each (var tobj:Object in info['tileObjects']) {
@@ -116,7 +135,7 @@ package sheltie
 				case 2:
 					return 1;
 				case 3:
-					return 4;
+					return 8;
 				case 4:
 					return 1;
 				case 5:

@@ -17,7 +17,7 @@ package sheltie
 		
 		public override function create():void
 		{
-			GameManager.instance().playLevel("bender.sheltie");
+			GameManager.instance().playLevel("tiny.sheltie");
 			this.add(GameManager.instance().levelObjects);
 		}
 	}

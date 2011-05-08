@@ -40,7 +40,7 @@ function PlayState() {
 	
 	my.tilemap = new jaws.TileMap({
 		cell_size: [16, 16],
-		size: [32, 32]
+		size: [16, 12]
 	});
 	
 	for (y = 0; y < my.tilemap.size[1]; y++) {
@@ -53,7 +53,7 @@ function PlayState() {
 	
 	my.tilemap.push(tiles);
 	
-	if (leveldata !== undefined) {
+	if (leveldata !== null) {
 		my.loadLevel(leveldata);
 	}
   }
